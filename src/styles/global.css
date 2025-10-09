@@ -1,10 +1,15 @@
 /* Global minimal styling (plain CSS). Comments in English only. */
 :root {
-  --bg: #f7f7f7;
+  /* Subtle, original background using radial dots over a soft wash */
+  --bg: radial-gradient(circle at 20% 10%, #f8fbff 0%, #f8fbff 20%, transparent 21%) 0 0 / 20px 20px no-repeat,
+        radial-gradient(circle at 70% 30%, #f9fafc 0%, #f9fafc 18%, transparent 19%) 0 0 / 26px 26px no-repeat,
+        linear-gradient(180deg, #fbfcfe 0%, #f6f7fb 100%);
   --card: #ffffff;
   --text: #1f2937;
   --muted: #6b7280;
   --accent: #2563eb;
+  --accent-2: #fb923c;
+  --accent-3: #22c55e;
   --danger: #dc2626;
   --success: #16a34a;
   --border: #e5e7eb;
@@ -36,10 +41,23 @@ body {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.07), 0 2px 8px rgba(0,0,0,0.04);
+  position: relative;
+  overflow: hidden;
+}
+.card::after {
+  /* Minimal conic accent sweep for a unique, tasteful highlight */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(from 210deg at 110% -10%, rgba(37,99,235,0.08), transparent 30%, transparent 70%, rgba(251,146,60,0.06))
+  ;
+  mix-blend-mode: multiply;
 }
 
 .row { display: flex; gap: 12px; align-items: center; }
@@ -49,24 +67,27 @@ label { font-size: 14px; color: var(--muted); }
 input, select, textarea {
   width: 100%;
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: #fff;
   color: var(--text);
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
-input:focus, select:focus, textarea:focus { outline: 2px solid rgba(37, 99, 235, 0.35); border-color: var(--accent); }
+input:focus, select:focus, textarea:focus { outline: 2px solid rgba(37, 99, 235, 0.25); border-color: var(--accent); box-shadow: 0 0 0 4px rgba(37,99,235,0.08); }
 
 button {
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: #fff;
   cursor: pointer;
+  transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
 }
 button:hover { filter: brightness(0.98); }
 button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 button.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
 button.ghost { background: transparent; }
+button:active { transform: translateY(1px); }
 
 .tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .tab {
@@ -74,19 +95,34 @@ button.ghost { background: transparent; }
   border-radius: 999px;
   background: #fff;
   border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  transition: background .15s ease, color .15s ease, transform .08s ease;
 }
-.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tab:hover { transform: translateY(-1px); }
+.tab.active {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 85%, #fff 15%), color-mix(in srgb, var(--accent-2) 85%, #fff 15%));
+  border-color: var(--accent);
+  color: #fff;
+}
 
 .table { width: 100%; border-collapse: collapse; }
-.table th, .table td { border-bottom: 1px solid var(--border); text-align: left; padding: 8px 6px; }
-.table th { font-weight: 600; font-size: 14px; color: var(--muted); }
+.table th, .table td { border-bottom: 1px solid var(--border); text-align: left; padding: 10px 8px; }
+.table th { font-weight: 600; font-size: 12px; letter-spacing: .02em; color: var(--muted); text-transform: uppercase; }
+.table tbody tr:hover { background: #fafafa; }
+.table tbody tr:nth-child(even) { background: #fcfcfc; }
+.table .cell-right { text-align: right; }
+.table .actions { white-space: nowrap; }
+.table-wrapper { width: 100%; overflow-x: auto; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; border: 1px solid #e5e7eb; font-size: 12px; }
 
 .section-title { margin: 0 0 8px; font-size: 18px; }
 .spacer { height: 8px; }
 .muted { color: var(--muted); }
 
 .totals { display: flex; gap: 12px; flex-wrap: wrap; }
-.total-pill { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px; }
+.total-pill { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
 
 .note { font-size: 12px; color: var(--muted); }
 

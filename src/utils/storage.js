@@ -443,6 +443,8 @@ export function getYearMonths(year) {
 export function totalsByMonthForYear(data, year) {
   const months = getYearMonths(year);
   return months.map((mk) => {
+    // Ensure the month is initialized so fixed entries are available
+    ensureMonthInitialized(data, mk);
     const fixed = sumFixedForMonth(data, mk);
     const variable = sumVariableForMonth(data, mk);
     return { monthKey: mk, fixed, variable, total: fixed + variable };

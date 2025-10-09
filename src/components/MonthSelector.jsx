@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 // Month selector (YYYY-MM)
 export default function MonthSelector({ value, onChange }) {
@@ -12,7 +12,5 @@ export default function MonthSelector({ value, onChange }) {
         onChange={(e) => onChange && onChange(e.target.value)}
       />
     </div>
-  )
+  );
 }
-
-

@@ -110,109 +110,111 @@ export default function VariableExpenses({ data, monthKey, onDataChange }) {
         </button>
       </form>
       <div className="spacer" />
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Import</th>
-            <th>Categoria</th>
-            <th>Nota</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {month.variable.map((v) => (
-            <tr key={v.id}>
-              <td>
-                {editingId === v.id ? (
-                  <input
-                    value={editForm.name}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, name: e.target.value })
-                    }
-                  />
-                ) : (
-                  v.name
-                )}
-              </td>
-              <td>
-                {editingId === v.id ? (
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editForm.amount}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, amount: e.target.value })
-                    }
-                  />
-                ) : (
-                  formatEuro(v.amount)
-                )}
-              </td>
-              <td>
-                {editingId === v.id ? (
-                  <select
-                    value={editForm.category}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, category: e.target.value })
-                    }
-                  >
-                    {data.categories.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  v.category
-                )}
-              </td>
-              <td>
-                {editingId === v.id ? (
-                  <input
-                    value={editForm.note}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, note: e.target.value })
-                    }
-                  />
-                ) : (
-                  v.note
-                )}
-              </td>
-              <td style={{ whiteSpace: "nowrap" }}>
-                {editingId === v.id ? (
-                  <>
-                    <button className="primary" onClick={saveEdit}>
-                      Guardar
-                    </button>
-                    <button onClick={cancelEdit} style={{ marginLeft: 6 }}>
-                      Cancel·lar
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={() => startEdit(v)}>Editar</button>
-                    <button
-                      className="danger"
-                      onClick={() => onDelete(v.id)}
-                      style={{ marginLeft: 6 }}
-                    >
-                      Eliminar
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-          {month.variable.length === 0 && (
+      <div className="table-wrapper">
+        <table className="table">
+          <thead>
             <tr>
-              <td colSpan={5} className="muted">
-                Sense despeses variables.
-              </td>
+              <th>Nom</th>
+              <th className="cell-right">Import</th>
+              <th>Categoria</th>
+              <th>Nota</th>
+              <th className="actions"></th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {month.variable.map((v) => (
+              <tr key={v.id}>
+                <td>
+                  {editingId === v.id ? (
+                    <input
+                      value={editForm.name}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, name: e.target.value })
+                      }
+                    />
+                  ) : (
+                    v.name
+                  )}
+                </td>
+                <td className="cell-right">
+                  {editingId === v.id ? (
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editForm.amount}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, amount: e.target.value })
+                      }
+                    />
+                  ) : (
+                    formatEuro(v.amount)
+                  )}
+                </td>
+                <td>
+                  {editingId === v.id ? (
+                    <select
+                      value={editForm.category}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, category: e.target.value })
+                      }
+                    >
+                      {data.categories.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    v.category
+                  )}
+                </td>
+                <td>
+                  {editingId === v.id ? (
+                    <input
+                      value={editForm.note}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, note: e.target.value })
+                      }
+                    />
+                  ) : (
+                    v.note
+                  )}
+                </td>
+                <td className="actions" style={{ whiteSpace: "nowrap" }}>
+                  {editingId === v.id ? (
+                    <>
+                      <button className="primary" onClick={saveEdit}>
+                        Guardar
+                      </button>
+                      <button onClick={cancelEdit} style={{ marginLeft: 6 }}>
+                        Cancel·lar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => startEdit(v)}>Editar</button>
+                      <button
+                        className="danger"
+                        onClick={() => onDelete(v.id)}
+                        style={{ marginLeft: 6 }}
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {month.variable.length === 0 && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  Sense despeses variables.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

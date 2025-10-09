@@ -9,9 +9,19 @@ import {
 
 export default function MonthlyFixed({ data, monthKey, onDataChange }) {
   const month = getMonth(data, monthKey);
-  const [form, setForm] = useState({ name: "", amount: "", category: "", note: "" });
+  const [form, setForm] = useState({
+    name: "",
+    amount: "",
+    category: "",
+    note: "",
+  });
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ name: "", amount: "", category: "", note: "" });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    amount: "",
+    category: "",
+    note: "",
+  });
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -23,7 +33,12 @@ export default function MonthlyFixed({ data, monthKey, onDataChange }) {
 
   const startEdit = (f) => {
     setEditingId(f.id);
-    setEditForm({ name: f.name, amount: String(f.amount), category: f.category, note: f.note || "" });
+    setEditForm({
+      name: f.name,
+      amount: String(f.amount),
+      category: f.category,
+      note: f.note || "",
+    });
   };
 
   const saveEdit = () => {
@@ -93,103 +108,111 @@ export default function MonthlyFixed({ data, monthKey, onDataChange }) {
         </button>
       </form>
       <div className="spacer" />
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Import</th>
-            <th>Categoria</th>
-            <th>Nota</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {month.fixed.map((f) => (
-            <tr key={f.id}>
-              <td>
-                {editingId === f.id ? (
-                  <input
-                    value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  />
-                ) : (
-                  f.name
-                )}
-              </td>
-              <td>
-                {editingId === f.id ? (
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editForm.amount}
-                    onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
-                  />
-                ) : (
-                  formatEuro(f.amount)
-                )}
-              </td>
-              <td>
-                {editingId === f.id ? (
-                  <select
-                    value={editForm.category}
-                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                  >
-                    {data.categories.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  f.category
-                )}
-              </td>
-              <td>
-                {editingId === f.id ? (
-                  <input
-                    value={editForm.note}
-                    onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
-                  />
-                ) : (
-                  f.note
-                )}
-              </td>
-              <td style={{ whiteSpace: "nowrap" }}>
-                {editingId === f.id ? (
-                  <>
-                    <button className="primary" onClick={saveEdit}>
-                      Guardar
-                    </button>
-                    <button onClick={cancelEdit} style={{ marginLeft: 6 }}>
-                      Cancel·lar
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={() => startEdit(f)}>Editar</button>
-                    <button
-                      className="danger"
-                      onClick={() => onDelete(f.id)}
-                      style={{ marginLeft: 6 }}
-                    >
-                      Eliminar
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-          {month.fixed.length === 0 && (
+      <div className="table-wrapper">
+        <table className="table">
+          <thead>
             <tr>
-              <td colSpan={5} className="muted">
-                Sense despeses fixes.
-              </td>
+              <th>Nom</th>
+              <th className="cell-right">Import</th>
+              <th>Categoria</th>
+              <th>Nota</th>
+              <th className="actions"></th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {month.fixed.map((f) => (
+              <tr key={f.id}>
+                <td>
+                  {editingId === f.id ? (
+                    <input
+                      value={editForm.name}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, name: e.target.value })
+                      }
+                    />
+                  ) : (
+                    f.name
+                  )}
+                </td>
+                <td className="cell-right">
+                  {editingId === f.id ? (
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editForm.amount}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, amount: e.target.value })
+                      }
+                    />
+                  ) : (
+                    formatEuro(f.amount)
+                  )}
+                </td>
+                <td>
+                  {editingId === f.id ? (
+                    <select
+                      value={editForm.category}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, category: e.target.value })
+                      }
+                    >
+                      {data.categories.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    f.category
+                  )}
+                </td>
+                <td>
+                  {editingId === f.id ? (
+                    <input
+                      value={editForm.note}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, note: e.target.value })
+                      }
+                    />
+                  ) : (
+                    f.note
+                  )}
+                </td>
+                <td className="actions" style={{ whiteSpace: "nowrap" }}>
+                  {editingId === f.id ? (
+                    <>
+                      <button className="primary" onClick={saveEdit}>
+                        Guardar
+                      </button>
+                      <button onClick={cancelEdit} style={{ marginLeft: 6 }}>
+                        Cancel·lar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => startEdit(f)}>Editar</button>
+                      <button
+                        className="danger"
+                        onClick={() => onDelete(f.id)}
+                        style={{ marginLeft: 6 }}
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {month.fixed.length === 0 && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  Sense despeses fixes.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
-
-

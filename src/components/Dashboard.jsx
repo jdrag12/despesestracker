@@ -39,34 +39,33 @@ export default function Dashboard({ data, monthKey }) {
           Total mensual: <strong>{formatEuro(total)}</strong>
         </div>
       </div>
-      <div
-        className="row"
-        style={{
-          gap: 16,
-          flexWrap: "wrap",
-          alignItems: "flex-start",
-          marginTop: 12,
-        }}
-      >
-        <div className="card" style={{ flex: "1 1 280px", minWidth: 260 }}>
-          <div className="muted">Distribució per categories ({monthKey})</div>
-          <div style={{ maxWidth: 380 }}>
-            <PieChart data={byCat} boxSize={220} strokeWidth={28} />
-          </div>
-          <div
-            style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}
-          >
-            {byCat.map((d, i) => (
-              <span key={i} className="total-pill" style={{ fontSize: 12 }}>
-                {d.label}: {formatEuro(d.value)}
-              </span>
-            ))}
-          </div>
+      <div className="card" style={{ marginTop: 12, textAlign: "center" }}>
+        <div className="muted">Distribució per categories ({monthKey})</div>
+        <div style={{ maxWidth: 420, margin: "0 auto" }}>
+          <PieChart data={byCat} boxSize={260} strokeWidth={28} />
         </div>
-        <div className="card" style={{ flex: 2, minWidth: 320 }}>
-          <div className="muted">Resum anual {year} (F/V)</div>
-          <BarChart items={yearSeries} />
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            flexWrap: "wrap",
+            marginTop: 8,
+            justifyContent: "center",
+          }}
+        >
+          {byCat.map((d, i) => (
+            <span key={i} className="total-pill" style={{ fontSize: 12 }}>
+              {d.label}: {formatEuro(d.value)}
+            </span>
+          ))}
         </div>
+      </div>
+
+      <div className="card">
+        <h4 className="section-title" style={{ marginBottom: 12 }}>
+          Resum anual {year}
+        </h4>
+        <BarChart items={yearSeries} />
       </div>
     </div>
   );
