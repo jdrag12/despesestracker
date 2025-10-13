@@ -5,6 +5,7 @@ import {
   deleteVariableExpense,
   getMonth,
   formatEuro,
+  formatTimestamp,
 } from "../utils/storage.js";
 
 export default function VariableExpenses({ data, monthKey, onDataChange }) {
@@ -118,6 +119,7 @@ export default function VariableExpenses({ data, monthKey, onDataChange }) {
               <th className="cell-right">Import</th>
               <th>Categoria</th>
               <th>Nota</th>
+              <th>Data</th>
               <th className="actions"></th>
             </tr>
           </thead>
@@ -180,6 +182,9 @@ export default function VariableExpenses({ data, monthKey, onDataChange }) {
                     v.note
                   )}
                 </td>
+                <td className="muted" style={{ fontSize: "12px" }}>
+                  {v.createdAt ? formatTimestamp(v.createdAt) : "-"}
+                </td>
                 <td className="actions" style={{ whiteSpace: "nowrap" }}>
                   {editingId === v.id ? (
                     <>
@@ -207,7 +212,7 @@ export default function VariableExpenses({ data, monthKey, onDataChange }) {
             ))}
             {month.variable.length === 0 && (
               <tr>
-                <td colSpan={5} className="muted">
+                <td colSpan={6} className="muted">
                   Sense despeses variables.
                 </td>
               </tr>

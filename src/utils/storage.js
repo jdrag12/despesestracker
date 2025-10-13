@@ -173,6 +173,7 @@ export function addVariableExpense(
     amount: parseFloat(amount),
     category,
     note: note || "",
+    createdAt: new Date().toISOString(),
   };
   data.months[monthKey].variable.push(exp);
   return exp;
@@ -211,6 +212,7 @@ export function addFixedForMonth(
     amount: parseFloat(amount),
     category,
     note: note || "",
+    createdAt: new Date().toISOString(),
   };
   data.months[monthKey].fixed.push(exp);
   return exp;
@@ -430,6 +432,18 @@ export function sumVariableForMonth(data, monthKey) {
 export function formatEuro(amount) {
   const num = isNaN(amount) ? 0 : Number(amount);
   return `${num.toFixed(2)} €`;
+}
+
+// Format timestamp for display
+export function formatTimestamp(isoString) {
+  const date = new Date(isoString);
+  return date.toLocaleString("ca-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // Aggregate totals per month for a given year

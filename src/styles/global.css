@@ -1,9 +1,6 @@
 /* Global minimal styling (plain CSS). Comments in English only. */
 :root {
-  /* Subtle, original background using radial dots over a soft wash */
-  --bg: radial-gradient(circle at 20% 10%, #f8fbff 0%, #f8fbff 20%, transparent 21%) 0 0 / 20px 20px no-repeat,
-        radial-gradient(circle at 70% 30%, #f9fafc 0%, #f9fafc 18%, transparent 19%) 0 0 / 26px 26px no-repeat,
-        linear-gradient(180deg, #fbfcfe 0%, #f6f7fb 100%);
+  --bg: #f8fbff;
   --card: #ffffff;
   --text: #1f2937;
   --muted: #6b7280;
@@ -49,15 +46,11 @@ body {
   overflow: hidden;
 }
 .card::after {
-  /* Minimal conic accent sweep for a unique, tasteful highlight */
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    conic-gradient(from 210deg at 110% -10%, rgba(37,99,235,0.08), transparent 30%, transparent 70%, rgba(251,146,60,0.06))
-  ;
-  mix-blend-mode: multiply;
+  background: rgba(37,99,235,0.02);
 }
 
 .row { display: flex; gap: 12px; align-items: center; }
@@ -100,8 +93,7 @@ button:active { transform: translateY(1px); }
 }
 .tab:hover { transform: translateY(-1px); }
 .tab.active {
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 85%, #fff 15%), color-mix(in srgb, var(--accent-2) 85%, #fff 15%));
+  background: var(--accent);
   border-color: var(--accent);
   color: #fff;
 }

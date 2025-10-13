@@ -5,6 +5,7 @@ import {
   updateFixedForMonth,
   deleteFixedForMonth,
   formatEuro,
+  formatTimestamp,
 } from "../utils/storage.js";
 
 export default function MonthlyFixed({ data, monthKey, onDataChange }) {
@@ -116,6 +117,7 @@ export default function MonthlyFixed({ data, monthKey, onDataChange }) {
               <th className="cell-right">Import</th>
               <th>Categoria</th>
               <th>Nota</th>
+              <th>Data</th>
               <th className="actions"></th>
             </tr>
           </thead>
@@ -178,6 +180,9 @@ export default function MonthlyFixed({ data, monthKey, onDataChange }) {
                     f.note
                   )}
                 </td>
+                <td className="muted" style={{ fontSize: "12px" }}>
+                  {f.createdAt ? formatTimestamp(f.createdAt) : "-"}
+                </td>
                 <td className="actions" style={{ whiteSpace: "nowrap" }}>
                   {editingId === f.id ? (
                     <>
@@ -205,7 +210,7 @@ export default function MonthlyFixed({ data, monthKey, onDataChange }) {
             ))}
             {month.fixed.length === 0 && (
               <tr>
-                <td colSpan={5} className="muted">
+                <td colSpan={6} className="muted">
                   Sense despeses fixes.
                 </td>
               </tr>
