@@ -82,10 +82,12 @@ export function ensureMonthInitialized(data, monthKey) {
   }
   const month = data.months[monthKey];
   if (!month.fixedAppliedFromTemplates) {
-    // On first activation of a month, auto-copy previous month's fixed entries if none exist.
+    // Only copy fixed expenses when the month "enters into effect" (is current or past)
+    const currentMonth = nowMonthKey();
     const hasExistingFixed =
       Array.isArray(month.fixed) && month.fixed.length > 0;
-    if (!hasExistingFixed) {
+
+    if (!hasExistingFixed && monthKey <= currentMonth) {
       const prevKey = prevMonthKey(monthKey);
       const prevMonth = data.months[prevKey];
       if (prevMonth && Array.isArray(prevMonth.fixed)) {
@@ -250,7 +252,9 @@ export function deleteCategory(data, name) {
 // CSV handling: full export/import
 // CSV columns: type(template|fixed|variable|category),month(optional),name,amount,category,note
 export function exportCSV(data) {
-  const rows = [["type", "month", "name", "amount", "category", "note"]];
+  const rows = [
+    ["type", "month", "name", "amount", "category", "note", "createdAt"],
+  ];
   // Ensure current (lastOpenedMonth) is initialized so fixed templates are materialized
   const currentMonth = data.lastOpenedMonth || nowMonthKey();
   ensureMonthInitialized(data, currentMonth);
@@ -267,6 +271,7 @@ export function exportCSV(data) {
         String(f.amount),
         f.category,
         f.note || "",
+        f.createdAt || "",
       ]);
     }
     for (const v of month.variable || []) {
@@ -277,6 +282,7 @@ export function exportCSV(data) {
         String(v.amount),
         v.category,
         v.note || "",
+        v.createdAt || "",
       ]);
     }
   }
@@ -314,6 +320,7 @@ export function importCSV(csvText) {
   const idxAmount = getIndex(["amount", "import", "importe"]);
   const idxCategory = getIndex(["category", "categoria"]);
   const idxNote = getIndex(["note", "nota"]);
+  const idxCreatedAt = getIndex(["createdat", "created_at", "data"]);
   const data = {
     categories: [...DEFAULT_CATEGORIES],
     fixedTemplates: [],
@@ -330,6 +337,8 @@ export function importCSV(csvText) {
     const amountStr = idxAmount !== -1 ? (cols[idxAmount] || "").trim() : "";
     const category = idxCategory !== -1 ? (cols[idxCategory] || "").trim() : "";
     const note = idxNote !== -1 ? (cols[idxNote] || "").trim() : "";
+    const createdAt =
+      idxCreatedAt !== -1 ? (cols[idxCreatedAt] || "").trim() : "";
     // Normalize amount: remove euro/whitespace and convert decimal comma to dot
     const normalizedAmountStr = amountStr
       .replace(/[€\s]/g, "")
@@ -353,7 +362,14 @@ export function importCSV(csvText) {
       // If we are importing concrete monthly data, mark as already applied
       data.months[month].fixedAppliedFromTemplates = true;
       if (!firstMonthSeen) firstMonthSeen = month;
-      const entry = { id: generateId(), name, amount, category, note };
+      const entry = {
+        id: generateId(),
+        name,
+        amount,
+        category,
+        note,
+        createdAt: createdAt || new Date().toISOString(),
+      };
       if (type === "fixed") data.months[month].fixed.push(entry);
       else data.months[month].variable.push(entry);
     }
@@ -456,9 +472,12 @@ export function getYearMonths(year) {
 
 export function totalsByMonthForYear(data, year) {
   const months = getYearMonths(year);
+  const currentMonth = nowMonthKey();
   return months.map((mk) => {
-    // Ensure the month is initialized so fixed entries are available
-    ensureMonthInitialized(data, mk);
+    // Only initialize months that have "entered into effect" (current or past)
+    if (mk <= currentMonth) {
+      ensureMonthInitialized(data, mk);
+    }
     const fixed = sumFixedForMonth(data, mk);
     const variable = sumVariableForMonth(data, mk);
     return { monthKey: mk, fixed, variable, total: fixed + variable };
