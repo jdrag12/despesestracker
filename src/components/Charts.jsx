@@ -82,18 +82,20 @@ export function PieChart({
         {hoveredIndex !== null && hoveredData && (
           <g>
             <rect
-              x={tooltipPos.x - 70}
-              y={tooltipPos.y - 50}
-              width={140}
-              height={40}
-              fill="rgba(0, 0, 0, 0.85)"
+              x={tooltipPos.x - 55}
+              y={tooltipPos.y - 35}
+              width={110}
+              height={28}
+              fill="rgba(0, 0, 0, 0.9)"
               rx={4}
+              stroke="rgba(255, 255, 255, 0.1)"
+              strokeWidth="0.5"
             />
             <text
               x={tooltipPos.x}
-              y={tooltipPos.y - 30}
+              y={tooltipPos.y - 20}
               textAnchor="middle"
-              fontSize="12"
+              fontSize="10"
               fill="white"
               fontWeight="bold"
             >
@@ -101,21 +103,12 @@ export function PieChart({
             </text>
             <text
               x={tooltipPos.x}
-              y={tooltipPos.y - 15}
+              y={tooltipPos.y - 7}
               textAnchor="middle"
-              fontSize="11"
-              fill="white"
+              fontSize="9"
+              fill="#e5e7eb"
             >
-              {formatEuro(hoveredData.value)}
-            </text>
-            <text
-              x={tooltipPos.x}
-              y={tooltipPos.y - 2}
-              textAnchor="middle"
-              fontSize="10"
-              fill="#d1d5db"
-            >
-              {percentage}%
+              {formatEuro(hoveredData.value)} ({percentage}%)
             </text>
           </g>
         )}
