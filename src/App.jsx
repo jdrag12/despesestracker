@@ -16,10 +16,21 @@ import {
 } from "./utils/storage.js";
 
 function App() {
-  const [data, setData] = useState(() => readData());
-  const [monthKey, setMonthKey] = useState(
-    () => data.lastOpenedMonth || nowMonthKey()
-  );
+  const initialData = readData();
+  const currentMonth = nowMonthKey();
+
+  // Auto-switch to current month if last opened month is in the past
+  const initialMonthKey = (() => {
+    const lastOpened = initialData.lastOpenedMonth || currentMonth;
+    // If last opened month is before current month, switch to current month
+    if (lastOpened < currentMonth) {
+      return currentMonth;
+    }
+    return lastOpened;
+  })();
+
+  const [data, setData] = useState(initialData);
+  const [monthKey, setMonthKey] = useState(initialMonthKey);
   const [tab, setTab] = useState("panell");
 
   // Initialize month when selected

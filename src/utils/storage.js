@@ -81,19 +81,25 @@ export function ensureMonthInitialized(data, monthKey) {
     };
   }
   const month = data.months[monthKey];
-  if (!month.fixedAppliedFromTemplates) {
-    // Only copy fixed expenses when the month "enters into effect" (is current or past)
-    const currentMonth = nowMonthKey();
-    const hasExistingFixed =
-      Array.isArray(month.fixed) && month.fixed.length > 0;
+  const currentMonth = nowMonthKey();
+  const hasExistingFixed = Array.isArray(month.fixed) && month.fixed.length > 0;
 
-    if (!hasExistingFixed && monthKey <= currentMonth) {
-      const prevKey = prevMonthKey(monthKey);
-      const prevMonth = data.months[prevKey];
-      if (prevMonth && Array.isArray(prevMonth.fixed)) {
-        month.fixed = prevMonth.fixed.map((f) => ({ ...f, id: generateId() }));
-      }
+  // Copy fixed expenses from previous month when the month "enters into effect"
+  // (is current or past) and doesn't have fixed expenses yet
+  if (!hasExistingFixed && monthKey <= currentMonth) {
+    const prevKey = prevMonthKey(monthKey);
+    const prevMonth = data.months[prevKey];
+    if (
+      prevMonth &&
+      Array.isArray(prevMonth.fixed) &&
+      prevMonth.fixed.length > 0
+    ) {
+      month.fixed = prevMonth.fixed.map((f) => ({ ...f, id: generateId() }));
     }
+  }
+
+  // Mark as applied to prevent re-applying unnecessarily
+  if (!month.fixedAppliedFromTemplates) {
     month.fixedAppliedFromTemplates = true;
   }
 }
