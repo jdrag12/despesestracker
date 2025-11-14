@@ -6,7 +6,7 @@ import {
   totalsByCategoryForMonth,
   totalsByMonthForYear,
 } from "../utils/storage.js";
-import { PieChart, BarChart } from "./Charts.jsx";
+import { BarChart } from "./Charts.jsx";
 
 export default function Dashboard({ data, monthKey }) {
   const fixed = sumFixedForMonth(data, monthKey);
@@ -15,10 +15,12 @@ export default function Dashboard({ data, monthKey }) {
   const year = Number(monthKey.slice(0, 4));
   const byCat = useMemo(
     () =>
-      totalsByCategoryForMonth(data, monthKey).map((x) => ({
-        label: x.category,
-        value: x.amount,
-      })),
+      totalsByCategoryForMonth(data, monthKey)
+        .map((x) => ({
+          label: x.category,
+          value: x.amount,
+        }))
+        .sort((a, b) => b.value - a.value), // Ordenar descendente por importe
     [data, monthKey]
   );
   const yearSeries = useMemo(
@@ -39,26 +41,41 @@ export default function Dashboard({ data, monthKey }) {
           Total mensual: <strong>{formatEuro(total)}</strong>
         </div>
       </div>
-      <div className="card" style={{ marginTop: 12, textAlign: "center" }}>
-        <div className="muted">Distribució per categories ({monthKey})</div>
-        <div style={{ maxWidth: 420, margin: "0 auto" }}>
-          <PieChart data={byCat} boxSize={260} strokeWidth={28} />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            flexWrap: "wrap",
-            marginTop: 8,
-            justifyContent: "center",
-          }}
-        >
-          {byCat.map((d, i) => (
-            <span key={i} className="total-pill" style={{ fontSize: 12 }}>
-              {d.label}: {formatEuro(d.value)}
-            </span>
-          ))}
-        </div>
+      <div className="card" style={{ marginTop: 12 }}>
+        <h4 className="section-title" style={{ marginBottom: 12 }}>
+          Distribució per categories ({monthKey})
+        </h4>
+        {byCat.length > 0 ? (
+          <div className="table-wrapper">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th className="cell-right">Import</th>
+                  <th className="cell-right">Percentatge</th>
+                </tr>
+              </thead>
+              <tbody>
+                {byCat.map((d, i) => {
+                  const percentage = total > 0 ? ((d.value / total) * 100).toFixed(1) : 0;
+                  return (
+                    <tr key={i}>
+                      <td>{d.label}</td>
+                      <td className="cell-right">
+                        <strong>{formatEuro(d.value)}</strong>
+                      </td>
+                      <td className="cell-right muted">{percentage}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="muted" style={{ textAlign: "center", padding: "20px" }}>
+            Sense despeses aquest mes.
+          </div>
+        )}
       </div>
 
       <div className="card">
