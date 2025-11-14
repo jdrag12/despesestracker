@@ -47,24 +47,25 @@ export default function Dashboard({ data, monthKey }) {
         </h4>
         {byCat.length > 0 ? (
           <div className="table-wrapper">
-            <table className="table">
+            <table className="table" style={{ border: 'none' }}>
               <thead>
                 <tr>
-                  <th>Categoria</th>
-                  <th className="cell-right">Import</th>
-                  <th className="cell-right">Percentatge</th>
+                  <th style={{ borderTop: 'none' }}>Categoria</th>
+                  <th className="cell-right" style={{ borderTop: 'none' }}>Import</th>
+                  <th className="cell-right" style={{ borderTop: 'none' }}>Percentatge</th>
                 </tr>
               </thead>
               <tbody>
                 {byCat.map((d, i) => {
                   const percentage = total > 0 ? ((d.value / total) * 100).toFixed(1) : 0;
+                  const isLast = i === byCat.length - 1;
                   return (
                     <tr key={i}>
-                      <td>{d.label}</td>
-                      <td className="cell-right">
+                      <td style={isLast ? { borderBottom: 'none' } : {}}>{d.label}</td>
+                      <td className="cell-right" style={isLast ? { borderBottom: 'none' } : {}}>
                         <strong>{formatEuro(d.value)}</strong>
                       </td>
-                      <td className="cell-right muted">{percentage}%</td>
+                      <td className="cell-right muted" style={isLast ? { borderBottom: 'none' } : {}}>{percentage}%</td>
                     </tr>
                   );
                 })}
