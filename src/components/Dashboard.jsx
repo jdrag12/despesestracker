@@ -6,7 +6,7 @@ import {
   totalsByCategoryForMonth,
   totalsByMonthForYear,
 } from "../utils/storage.js";
-import { BarChart } from "./Charts.jsx";
+import { BarChart, PieChart } from "./Charts.jsx";
 
 export default function Dashboard({ data, monthKey }) {
   const fixed = sumFixedForMonth(data, monthKey);
@@ -41,37 +41,36 @@ export default function Dashboard({ data, monthKey }) {
           Total mensual: <strong>{formatEuro(total)}</strong>
         </div>
       </div>
-      <div className="card" style={{ marginTop: 12 }}>
+      <div className="card" style={{ marginTop: 12, textAlign: "center" }}>
         <h4 className="section-title" style={{ marginBottom: 12 }}>
           Distribució per categories ({monthKey})
         </h4>
         {byCat.length > 0 ? (
-          <div className="table-wrapper">
-            <table className="table" style={{ border: 'none' }}>
-              <thead>
-                <tr>
-                  <th style={{ borderTop: 'none' }}>Categoria</th>
-                  <th className="cell-right" style={{ borderTop: 'none' }}>Import</th>
-                  <th className="cell-right" style={{ borderTop: 'none' }}>Percentatge</th>
-                </tr>
-              </thead>
-              <tbody>
-                {byCat.map((d, i) => {
-                  const percentage = total > 0 ? ((d.value / total) * 100).toFixed(1) : 0;
-                  const isLast = i === byCat.length - 1;
-                  return (
-                    <tr key={i}>
-                      <td style={isLast ? { borderBottom: 'none' } : {}}>{d.label}</td>
-                      <td className="cell-right" style={isLast ? { borderBottom: 'none' } : {}}>
-                        <strong>{formatEuro(d.value)}</strong>
-                      </td>
-                      <td className="cell-right muted" style={isLast ? { borderBottom: 'none' } : {}}>{percentage}%</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div style={{ maxWidth: 320, margin: "0 auto" }}>
+              <PieChart
+                data={byCat}
+                boxSize={260}
+                strokeWidth={28}
+                colors={["#eab308", "#ca8a04", "#a16207", "#ca9a1e", "#d4a84b", "#e5c076"]}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+                marginTop: 12,
+                justifyContent: "center",
+              }}
+            >
+              {byCat.map((d, i) => (
+                <span key={i} className="total-pill" style={{ fontSize: 12 }}>
+                  {d.label}: {formatEuro(d.value)}
+                </span>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="muted" style={{ textAlign: "center", padding: "20px" }}>
             Sense despeses aquest mes.

@@ -117,14 +117,17 @@ export function PieChart({
   );
 }
 
-// Simple SVG Bar chart
+// Simple SVG Bar chart with expense numbers and hover breakdown (fix / variable / total)
 export function BarChart({
   items,
   boxWidth = 640,
-  boxHeight = 240,
+  boxHeight = 280,
   colors = { fixed: "#2563eb", variable: "#16a34a" },
 }) {
-  // Responsive SVG via viewBox and width:100%
+  const [hoveredIdx, setHoveredIdx] = React.useState(null);
+  const [tooltipPos, setTooltipPos] = React.useState({ x: 0, y: 0 });
+  const svgRef = React.useRef(null);
+
   const width = boxWidth;
   const height = boxHeight;
   const padding = 28;
@@ -135,47 +138,113 @@ export function BarChart({
     1,
     ...items.map((i) => Math.max(i.fixed, i.variable))
   );
-  const scaleY = (v) => (v / maxVal) * (height - padding * 2);
+  const bottomSpace = 24;
+  const scaleY = (v) => (v / maxVal) * (height - padding * 2 - bottomSpace);
+  const centerX = (gx) => gx + barWidth + 3;
+
+  const handleMouseMove = (e) => {
+    if (!svgRef.current) return;
+    const svgRect = svgRef.current.getBoundingClientRect();
+    const point = svgRef.current.createSVGPoint();
+    point.x = e.clientX - svgRect.left;
+    point.y = e.clientY - svgRect.top;
+    setTooltipPos({ x: point.x, y: point.y });
+  };
+
+  const hovered = hoveredIdx !== null ? items[hoveredIdx] : null;
+
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      style={{ width: "100%", height: "auto", display: "block" }}
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {items.map((i, idx) => {
-        const gx = padding + idx * groupWidth;
-        const hFixed = scaleY(i.fixed);
-        const hVar = scaleY(i.variable);
-        return (
-          <g key={i.monthKey}>
-            <rect
-              x={gx}
-              y={height - padding - hFixed}
-              width={barWidth}
-              height={hFixed}
-              fill={colors.fixed}
-              rx={4}
-            />
-            <rect
-              x={gx + barWidth + 6}
-              y={height - padding - hVar}
-              width={barWidth}
-              height={hVar}
-              fill={colors.variable}
-              rx={4}
-            />
-            <text
-              x={gx + barWidth}
-              y={height - 6}
-              textAnchor="middle"
-              fontSize="10"
-              fill="#6b7280"
+    <div style={{ position: "relative" }}>
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${width} ${height}`}
+        style={{ width: "100%", height: "auto", display: "block" }}
+        preserveAspectRatio="xMidYMid meet"
+        onMouseLeave={() => setHoveredIdx(null)}
+      >
+        {items.map((i, idx) => {
+          const gx = padding + idx * groupWidth;
+          const hFixed = scaleY(i.fixed);
+          const hVar = scaleY(i.variable);
+          const cx = centerX(gx);
+          const total = i.fixed + i.variable;
+          const isHovered = hoveredIdx === idx;
+          return (
+            <g
+              key={i.monthKey}
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseMove={handleMouseMove}
+              style={{ cursor: "pointer" }}
             >
-              {i.monthKey.slice(5)}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+              <rect
+                x={gx}
+                y={height - padding - bottomSpace - Math.max(hFixed, hVar)}
+                width={groupWidth}
+                height={height - padding - bottomSpace}
+                fill="transparent"
+              />
+              <rect
+                x={gx}
+                y={height - padding - bottomSpace - hFixed}
+                width={barWidth}
+                height={hFixed}
+                fill={colors.fixed}
+                rx={4}
+                opacity={isHovered ? 1 : 0.85}
+              />
+              <rect
+                x={gx + barWidth + 6}
+                y={height - padding - bottomSpace - hVar}
+                width={barWidth}
+                height={hVar}
+                fill={colors.variable}
+                rx={4}
+                opacity={isHovered ? 1 : 0.85}
+              />
+              <text
+                x={cx}
+                y={height - 8}
+                textAnchor="middle"
+                fontSize="10"
+                fill="#6b7280"
+              >
+                {i.monthKey.slice(5)}
+              </text>
+            </g>
+          );
+        })}
+        {hoveredIdx !== null && hovered && (() => {
+          const tw = 200;
+          const th = 72;
+          const tx = Math.max(10, Math.min(tooltipPos.x - tw / 2, width - tw - 10));
+          const ty = Math.max(10, tooltipPos.y - th - 10);
+          const tcx = tx + tw / 2;
+          const lineH = 22;
+          return (
+            <g>
+              <rect
+                x={tx}
+                y={ty}
+                width={tw}
+                height={th}
+                fill="rgba(0, 0, 0, 0.9)"
+                rx={8}
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="0.5"
+              />
+              <text x={tcx} y={ty + 20} textAnchor="middle" fontSize="13" fill="#93c5fd">
+                Fixes: {formatEuro(hovered.fixed)}
+              </text>
+              <text x={tcx} y={ty + 20 + lineH} textAnchor="middle" fontSize="13" fill="#86efac">
+                Variables: {formatEuro(hovered.variable)}
+              </text>
+              <text x={tcx} y={ty + 20 + lineH * 2} textAnchor="middle" fontSize="14" fill="white" fontWeight="bold">
+                Total: {formatEuro(hovered.fixed + hovered.variable)}
+              </text>
+            </g>
+          );
+        })()}
+      </svg>
+    </div>
   );
 }
