@@ -28,6 +28,7 @@ export function PieChart({
 }) {
   const [hoveredIndex, setHoveredIndex] = React.useState(null);
   const [tooltipPos, setTooltipPos] = React.useState({ x: 0, y: 0 });
+  const leaveTimeoutRef = React.useRef(null);
   const svgRef = React.useRef(null);
 
   const size = boxSize;
@@ -35,6 +36,27 @@ export function PieChart({
   const cx = size / 2;
   const cy = size / 2;
   const outerR = Math.min(cx, cy) - 8;
+
+  const clearLeaveTimeout = () => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+  };
+
+  const handleMouseEnter = (i) => {
+    clearLeaveTimeout();
+    setHoveredIndex(i);
+  };
+
+  const handleMouseLeave = () => {
+    leaveTimeoutRef.current = setTimeout(() => setHoveredIndex(null), 150);
+  };
+
+  const handleMouseLeaveSvg = () => {
+    clearLeaveTimeout();
+    setHoveredIndex(null);
+  };
 
   const handleMouseMove = (e) => {
     if (!svgRef.current) return;
@@ -45,14 +67,21 @@ export function PieChart({
     setTooltipPos({ x: point.x, y: point.y });
   };
 
+  React.useEffect(() => () => clearLeaveTimeout(), []);
+
   let acc = 0;
-  const slices = data.map((d, i) => {
+  const sliceData = data.map((d, i) => {
     const startAngle = (acc / total) * 2 * Math.PI - Math.PI / 2;
     acc += d.value;
     const endAngle = (acc / total) * 2 * Math.PI - Math.PI / 2;
     const color = colors[i % colors.length] || `hsl(${(i * 47) % 360}, 65%, 52%)`;
-    const isHovered = hoveredIndex === i;
     const pathD = describeArc(cx, cy, outerR, startAngle, endAngle);
+    return { pathD, color, i, d };
+  });
+
+  // Draw smallest slices first so largest are on top and easier to hover
+  const slices = [...sliceData].reverse().map(({ pathD, color, i, d }) => {
+    const isHovered = hoveredIndex === i;
     return (
       <path
         key={i}
@@ -65,8 +94,8 @@ export function PieChart({
           opacity: hoveredIndex !== null && !isHovered ? 0.5 : 1,
           transition: "opacity 0.15s ease",
         }}
-        onMouseEnter={() => setHoveredIndex(i)}
-        onMouseLeave={() => setHoveredIndex(null)}
+        onMouseEnter={() => handleMouseEnter(i)}
+        onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
       >
         <title>{d.label}: {((d.value / total) * 100).toFixed(1)}%</title>
@@ -79,6 +108,11 @@ export function PieChart({
     ? ((hoveredData.value / total) * 100).toFixed(1)
     : 0;
 
+  const tw = 120;
+  const th = 32;
+  const tx = Math.max(8, Math.min(tooltipPos.x - tw / 2, size - tw - 8));
+  const ty = Math.max(8, Math.min(tooltipPos.y - th - 12, size - th - 8));
+
   return (
     <div style={{ position: "relative" }}>
       <svg
@@ -86,36 +120,29 @@ export function PieChart({
         viewBox={`0 0 ${size} ${size}`}
         style={{ width: "100%", height: "auto", display: "block" }}
         preserveAspectRatio="xMidYMid meet"
-        onMouseLeave={() => setHoveredIndex(null)}
+        onMouseLeave={handleMouseLeaveSvg}
       >
         {slices}
-        {hoveredIndex !== null && hoveredData && (() => {
-          const tw = 120;
-          const th = 32;
-          const tx = Math.max(8, Math.min(tooltipPos.x - tw / 2, size - tw - 8));
-          const ty = Math.max(8, tooltipPos.y - th - 8);
-          const tcx = tx + tw / 2;
-          return (
-            <g>
-              <rect
-                x={tx}
-                y={ty}
-                width={tw}
-                height={th}
-                fill="rgba(0, 0, 0, 0.9)"
-                rx={6}
-                stroke="rgba(255, 255, 255, 0.12)"
-                strokeWidth="0.5"
-              />
-              <text x={tcx} y={ty + 14} textAnchor="middle" fontSize="11" fill="white" fontWeight="bold">
-                {hoveredData.label}
-              </text>
-              <text x={tcx} y={ty + 26} textAnchor="middle" fontSize="10" fill="#e5e7eb">
-                {formatEuro(hoveredData.value)} ({percentage}%)
-              </text>
-            </g>
-          );
-        })()}
+        {hoveredIndex !== null && hoveredData && (
+          <g pointerEvents="none">
+            <rect
+              x={tx}
+              y={ty}
+              width={tw}
+              height={th}
+              fill="rgba(0, 0, 0, 0.9)"
+              rx={6}
+              stroke="rgba(255, 255, 255, 0.12)"
+              strokeWidth="0.5"
+            />
+            <text x={tx + tw / 2} y={ty + 14} textAnchor="middle" fontSize="11" fill="white" fontWeight="bold">
+              {hoveredData.label}
+            </text>
+            <text x={tx + tw / 2} y={ty + 26} textAnchor="middle" fontSize="10" fill="#e5e7eb">
+              {formatEuro(hoveredData.value)} ({percentage}%)
+            </text>
+          </g>
+        )}
       </svg>
     </div>
   );
