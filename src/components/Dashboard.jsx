@@ -51,8 +51,7 @@ export default function Dashboard({ data, monthKey }) {
               <PieChart
                 data={byCat}
                 boxSize={260}
-                strokeWidth={28}
-                colors={["#eab308", "#ca8a04", "#a16207", "#ca9a1e", "#d4a84b", "#e5c076"]}
+                colors={["#2563eb", "#16a34a", "#ea580c", "#7c3aed", "#0d9488", "#dc2626", "#ca8a04", "#0891b2"]}
               />
             </div>
             <div
